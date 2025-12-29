@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>THE GAP-TO-ACTION SYSTEM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient-start: #0f172a;
+      --bg-gradient-end: #020617;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-heading: #ffffff;
+      --accent-primary: #38bdf8;
+      --accent-hover: #7dd3fc;
+      --accent-success: #22c55e;
+      --input-bg: #1e293b;
+      --code-bg: rgba(0, 0, 0, 0.4);
+      --shadow-color: rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      color: var(--accent-primary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 450px 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-layout { grid-template-columns: 1fr; }
+    }
+
+    .input-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px var(--shadow-color);
+      backdrop-filter: blur(12px);
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      background: #243146;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .preview-pane {
+      position: sticky;
+      top: 20px;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 180px);
+    }
+
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .prompt-header h2 {
+      font-size: 1.1rem;
+      color: var(--text-heading);
+    }
+
+    .prompt-box {
+      background-color: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 25px;
+      flex-grow: 1;
+      overflow-y: auto;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    /* Scrollbar Styling */
+    .prompt-box::-webkit-scrollbar { width: 8px; }
+    .prompt-box::-webkit-scrollbar-track { background: transparent; }
+    .prompt-box::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+    .prompt-box::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+    .copy-button {
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #020617;
+      background-color: var(--accent-primary);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .copy-button:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .copy-button.copied {
+      background-color: var(--accent-success);
+      color: white;
+    }
+
+    .icon { width: 16px; height: 16px; }
+    .copied-icon { display: none; }
+    .copy-button.copied .copy-icon { display: none; }
+    .copy-button.copied .copied-icon { display: inline-block; }
+
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>THE GAP-TO-ACTION SYSTEM</h1>
+      <p class="subtitle">Expert-Level • Continuous Run Prompt Block</p>
+    </header>
+
+    <main class="grid-layout">
+      <!-- INPUT SECTION -->
+      <section class="input-pane">
+        <div class="card">
+          <div class="form-group">
+            <label>1. Primary Platform</label>
+            <input type="text" id="platform" placeholder="e.g. LinkedIn, Newsletter, X">
+          </div>
+
+          <div class="form-group">
+            <label>2. Monetisation Model</label>
+            <textarea id="monetisation" placeholder="How exactly is money made?"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>3. Target Audience</label>
+            <textarea id="audience" placeholder="Who exactly is this for?"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>4. Audience Situation</label>
+            <textarea id="situation" placeholder="Describe the specific stuck state or confusion..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>5. Primary Outcome</label>
+            <textarea id="outcome" placeholder="What does success mean to them?"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- PREVIEW SECTION -->
+      <section class="preview-pane">
+        <div class="prompt-header">
+          <h2>Continuous Run Prompt Preview</h2>
+          <button id="copyBtn" class="copy-button">
+            <svg class="icon copy-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" /></svg>
+            <svg class="icon copied-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            <span id="copyBtnText">Copy Prompt Block</span>
+          </button>
+        </div>
+        <div id="promptOutput" class="prompt-box"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Copyright &copy; <script>document.write(new Date().getFullYear())</script> Siva Prasad Mukherjee. All Rights Reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    const fields = ['platform', 'monetisation', 'audience', 'situation', 'outcome'];
+    const outputEl = document.getElementById('promptOutput');
+    const copyBtn = document.getElementById('copyBtn');
+
+    function updatePrompt() {
+      const vals = {};
+      fields.forEach(f => {
+        const el = document.getElementById(f);
+        vals[f] = el.value.trim() || `[${el.previousElementSibling.innerText.split('. ')[1]}]`;
+      });
+
+      const template = `ROLE & OPERATING MODE
+Act as a senior content strategist and product architect.
+Your job is to reduce confusion and increase confident action, not to maximize output.
+
+Prefer:
+- Accuracy over persuasion
+- Structure over verbosity
+- Clarity over cleverness
+
+Write as a calm, experienced practitioner, not a marketer.
+
+Global Constraints (Apply Everywhere):
+- Do not reinterpret assumptions unless explicitly instructed
+- Do not introduce new strategies, frameworks, or tactics
+- Do not use hype, urgency, exaggerated claims, or marketing clichés
+- Prefer completeness over length; use only words that increase clarity
+- If explanation stops adding clarity, summarize and move forward
+
+
+SELF-DIAGNOSIS DIRECTIVE (SILENT)
+
+Before producing any output, silently assess:
+- Audience sophistication (beginner / intermediate / advanced)
+- Nature of the problem (clarity vs execution)
+- Risk of over-explaining vs under-explaining
+
+Use this assessment to dynamically adjust:
+- Depth of explanation
+- Section length
+- Level of abstraction
+
+Do not announce this assessment.
+Let it guide the output invisibly.
+
+
+CONTEXT SETUP (EDIT ONLY THIS SECTION)
+
+Primary Platform: ${vals.platform}
+Monetisation Model: ${vals.monetisation}
+Target Audience: ${vals.audience}
+Audience Situation: ${vals.situation}
+Primary Outcome: ${vals.outcome}
+
+Treat all context above as LOCKED for the entire run.
+
+
+PHASE 1 — PSYCHOLOGICAL & STRUCTURAL ARCHITECTURE
+
+Plan an article that solves the audience’s problem using the following chronological reasoning steps. Do not merge or skip steps.
+
+1. Dominant Psychological Emotion
+- What the audience is feeling right now
+
+2. Cause of That Emotion
+- The perceived gap between effort and outcome
+- Caused by either:
+  - Failure to do the needful, or
+  - Doing the needful but receiving an unexpected / undesired result
+- How the audience interprets the meaning of this gap
+
+3. Marketing Starting Point
+Treat this psychological understanding as the starting point because people respond when their emotion is:
+- Acknowledged
+- Validated
+- Given a believable path toward resolution
+
+4. Foundational Decisions
+- Target audience (re-confirm)
+- Audience’s level of understanding and skills
+- Asset intent
+- Structure & format
+
+5. Expressive Output
+- Tone
+- Writing style
+
+6. Section-wise Structure
+- Break the article into logical sections
+
+7. Purpose of Each Section
+- Why it exists
+- What role it plays in resolving confusion
+
+8. Content Modes
+- Choose the most suitable content mode for each section
+
+Lock all assumptions and decisions made here.
+
+
+PHASE 2 — PRE-EXECUTION VALUE AUDIT
+
+Evaluate the planned article:
+- Content value (1–10)
+- How helpful it will be in practice
+- What problems it clearly solves
+- What problems it intentionally does not solve (and why)
+
+
+PHASE 3 — ARTICLE EXECUTION (“DO-THIS-NEXT” GUIDE)
+
+Using only the approved plan, write the full article as a step-by-step, do-this-next guide.
+
+Constraints:
+- No new ideas or strategies
+- No skipped steps
+- Every section ends with a clear action or decision
+- Directional clarity over motivation
+- Practitioner tone throughout
+
+
+PHASE 4 — POST-EXECUTION VALUE AUDIT
+
+Evaluate the written article:
+- Content value (1–10)
+- What clarity the reader now has
+- What clarity is intentionally left unresolved
+
+
+PHASE 5 — NEXT ASSET & PROGRESSION LOGIC
+
+Identify the single best next asset, only if one is genuinely needed.
+
+Include:
+- Asset purpose
+- The specific gap it fills
+- Why this gap should not be solved inside the article
+
+Also include:
+- How this should be positioned publicly
+- What comes AFTER this (so the reader doesn’t skip ahead)
+
+If the article alone is sufficient for confident action, say so explicitly.
+Do not force asset creation.
+
+
+PHASE 6 — FORMAT CONFIRMATION & INTERNAL STRUCTURE
+
+Confirm:
+- Best delivery format
+- Suggested internal structure (sections only)
+
+
+PHASE 7 — COVER COPY
+
+Write cover copy only:
+- Title
+- Subtitle
+- One-line promise
+- Intended reader descriptor
+
+
+PHASE 8 — FREE vs PAID POSITIONING
+
+Decide whether the asset should be:
+- Free
+- Free via marketplace listing
+- Paid (entry-level)
+
+Justify based on:
+- Trust building
+- Funnel progression
+- Audience readiness
+
+
+PHASE 9 — ASSET TYPE DIAGNOSIS (NO FORCE-FIT)
+
+Diagnose the asset before naming it, based on:
+- Purpose
+- Level of abstraction
+- Execution depth
+- How the reader is expected to use it
+
+Then:
+- If it fits a known category, name it and explain why
+- If not, propose the most accurate label (including hybrid or new terms)
+
+Clarify:
+- What this asset is
+- What it explicitly is not
+
+
+PHASE 10 — LISTING + CTA + NEXT PAID ASSET
+
+Write:
+- Marketplace product title
+- Product description
+- Best category
+
+Then:
+- Decide the best CTA to place inside the article
+- Design the next paid asset that logically follows
+
+
+PHASE 11 — PAID ASSET OUTLINE
+
+Outline the paid asset chapter-by-chapter.
+
+Constraints:
+- Execution-focused
+- No overlap with free asset
+- Increasing concreteness
+
+
+PHASE 12 — PAID ASSET EXECUTION
+
+Write Chapter 1 in full.
+
+Constraints:
+- Assume reader completed the free asset
+- No recap
+- Action over explanation
+
+
+PHASE 13 — SALES PAGE STRUCTURE
+
+Design the sales page structure:
+- Section order
+- Purpose of each section
+- Objection each section resolves
+
+
+PHASE 14 — SALES PAGE COPY
+
+Write the complete sales page copy using the structure above.
+
+Constraints:
+- Calm, grounded, trust-first language
+- No hype or inflated promises
+- Practitioner explanation, not marketing pitch
+
+
+FINAL SYSTEM-LEVEL SELF-AUDIT
+
+Before finalizing, check for these failure modes:
+- Solving too much too early
+- Asset expectation mismatch
+- Reader told what without knowing when
+- Monetisation appearing before readiness
+
+If any exist, correct the structure, not the wording.`;
+
+      outputEl.textContent = template;
+    }
+
+    // Listen for all input events
+    fields.forEach(id => {
+      document.getElementById(id).addEventListener('input', updatePrompt);
+    });
+
+    // Copy to clipboard logic
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(outputEl.textContent).then(() => {
+        const btnText = document.getElementById('copyBtnText');
+        const originalText = btnText.textContent;
+        
+        btnText.textContent = 'Copied to Clipboard!';
+        copyBtn.classList.add('copied');
+        
+        setTimeout(() => {
+          btnText.textContent = originalText;
+          copyBtn.classList.remove('copied');
+        }, 2500);
+      });
+    });
+
+    // Initial render
+    updatePrompt();
+  </script>
+</body>
+</html>
